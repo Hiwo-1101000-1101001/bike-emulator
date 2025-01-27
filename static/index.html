@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Bike Emulator</title>
+	<script src="https://cdn.tailwindcss.com"></script>
+	<style>
+		:root {
+			--bg-color: rgb(22, 22, 22);
+			--primary-color: rgba(255, 89, 0, 1);
+		}
+
+		body {
+			background-color: var(--bg-color);
+			color: white;
+		}
+
+
+		.btn-primary {
+			background-color: var(--primary-color);
+			color: white;
+		}
+
+		.btn-primary:hover {
+			background-color: rgba(255, 89, 0, 0.8);
+		}
+
+		.input-field {
+			background-color: rgb(30, 30, 30);
+			color: white;
+		}
+
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
+
+		input[type='number'] {
+			-moz-appearance: textfield;
+		}
+
+		input {
+			background-color: rgba(255, 255, 255, 0.05);
+			border: 1px solid rgba(255, 255, 255, 0.05);
+			border-radius: 5px;
+			padding: 10px !important;
+			outline: none;
+			color: rgba(255, 255, 255, 0.5) !important;
+			transition: .1s;
+			font-size: 12px;
+			flex: 1;
+			width: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<audio id="alarm-sound" src="alert.wav" preload="auto"></audio>
+
+	<div class="flex flex-col items-center justify-center p-4 w-full pt-[200px]">
+		<h1 class="text-3xl font-bold mb-6" style="color: var(--primary-color);">Bike Emulator</h1>
+
+		<div id="status" class="bg-gray-800 text-gray-300 p-4 rounded mb-4 w-full max-w-md text-center">
+			Connecting to MQTT broker...
+		</div>
+
+		<div class="space-y-4 w-full max-w-md">
+			<div>
+				<label for="bikeId" class="block text-sm font-medium mb-1">Bike ID</label>
+				<input id="bikeId" type="text" placeholder="Enter Bike ID" value="12">
+			</div>
+			<div class="flex gap-2">
+				<div class="w-full">
+					<label for="lat" class="block text-sm font-medium mb-1">Latitude</label>
+					<input id="lat" type="number" step="any">
+				</div>
+				<div class="w-full">
+					<label for="lon" class="block text-sm font-medium mb-1">Longitude</label>
+					<input id="lon" type="number" step="any">
+				</div>
+			</div>
+			<button id="reset-coords"
+				class="btn-primary w-full py-2 px-4 rounded shadow-md focus:outline-none focus:ring focus:ring-orange-300">
+				Reset to Real Coordinates
+			</button>
+			<button id="alarm"
+				class="btn-primary w-full py-2 px-4 rounded shadow-md font-semibold focus:outline-none focus:ring focus:ring-orange-300">
+				Trigger Alarm
+			</button>
+			<button id="disconnect"
+				class="w-full py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded shadow-md focus:outline-none focus:ring focus:ring-red-300">
+				Disconnect
+			</button>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/mqtt/dist/mqtt.min.js"></script>
+	<script>
+		const latInput = document.getElementById('lat');
+		const lonInput = document.getElementById('lon');
+		const resetCoordsBtn = document.getElementById('reset-coords');
+
+		// Получение реальных координат
+		function setRealCoordinates() {
+			if (navigator.geolocation) {
+				navigator.geolocation.getCurrentPosition(
+					(position) => {
+						const { latitude, longitude } = position.coords;
+						latInput.value = latitude.toFixed(6);
+						lonInput.value = longitude.toFixed(6);
+					},
+					(error) => {
+						console.error('Error getting location:', error);
+					}
+				);
+			} else {
+				console.error('Geolocation is not supported by this browser.');
+			}
+		}
+
+		// Устанавливаем реальные координаты по умолчанию
+		setRealCoordinates();
+
+		// Кнопка сброса координат
+		resetCoordsBtn.addEventListener('click', () => {
+			setRealCoordinates();
+		});
+	</script>
+	<script type="module" src="js/main.js"></script>
+</body>
+
+</html>
